@@ -290,14 +290,16 @@ Ctrl+K Ctrl+0 = fold all | Ctrl+K Ctrl+J = unfold all
     lines.push(`lastUpdated: '${tree.lastUpdated}'`);
     lines.push(`totalFiles: ${tree.totalFiles}`);
     lines.push('');
-    
-    // Add visual root indicator
-    lines.push('# 🏠 Root Files');
     lines.push('files:');
+    lines.push('');
     
-    // Format files tree with spacing
+    // Add Root folder with icon
+    lines.push('  # === 🏠 Root');
+    lines.push('  Root:');
+    
+    // Format files tree with spacing (level 2 for proper nesting under Root)
     if (tree.files && Object.keys(tree.files).length > 0) {
-      this.formatTreeLevel(tree.files, 1, lines);
+      this.formatTreeLevel(tree.files, 2, lines);
     }
     
     return lines.join('\n');
