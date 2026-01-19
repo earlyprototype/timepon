@@ -1,0 +1,9 @@
+node_modules/
+package-lock.json
+*.log
+tests/
+
+# Test verification files (development only)
+test-verification/
+test-binary-detection-real.js
+verify-fixes.ps1

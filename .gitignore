@@ -1,0 +1,37 @@
+# Node modules
+node_modules/
+package-lock.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+.cursor/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Timepon metadata
+_timepon.yaml
+_timepon.yaml.backup.*
+
+# Test artifacts
+test-verification/
+.integration-test/
+
+# Internal documentation (not for end users)
+HANDOVER*.md
+BUGFIX*.md
+DEPLOYMENT*.md
+PROJECT_SUMMARY.md
+LifeTheUniverseAndEveryting/
+
+# Development scripts
+verify-fixes.ps1
+test-binary-detection-real.js

@@ -1,0 +1,30 @@
+{
+  "name": "timepon-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for tracking file creation and metadata in AI-assisted development workflows",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": ["mcp", "file-tracking", "ai-coding", "documentation-hygiene"],
+  "author": "Timepon Project",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/timepon.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/timepon/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "chokidar": "^4.0.3",
+    "yaml": "^2.6.1"
+  }
+}
