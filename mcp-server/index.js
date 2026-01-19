@@ -554,7 +554,7 @@ Ctrl+K Ctrl+0 = fold all | Ctrl+K Ctrl+J = unfold all
   }
 
   /**
-   * Load ignore patterns from .tponignore and .gitignore
+   * Load ignore patterns from .tponignore only
    */
   async loadIgnorePatterns() {
     const patterns = [];
@@ -566,15 +566,10 @@ Ctrl+K Ctrl+0 = fold all | Ctrl+K Ctrl+J = unfold all
       /(^|[\/\\])_timepon\.yaml\.backup\./, // Timepon backups
     );
 
-    // Load .tponignore (higher priority)
+    // Load .tponignore ONLY (don't read .gitignore)
     const tponignorePath = path.join(this.workspaceRoot, '.tponignore');
     const tponPatterns = await this.parseIgnoreFile(tponignorePath);
     patterns.push(...tponPatterns);
-
-    // Load .gitignore (fallback)
-    const gitignorePath = path.join(this.workspaceRoot, '.gitignore');
-    const gitPatterns = await this.parseIgnoreFile(gitignorePath);
-    patterns.push(...gitPatterns);
 
     return patterns;
   }
