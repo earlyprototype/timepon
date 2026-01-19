@@ -39,8 +39,27 @@ class TimeponServer {
       }
     );
 
-    // Get workspace root from environment or auto-detect from current working directory
-    this.workspaceRoot = process.env.TIMEPON_WORKSPACE || process.cwd();
+    // Get workspace from environment variable (required for multi-workspace support)
+    this.workspaceRoot = process.env.TIMEPON_WORKSPACE;
+    
+    if (!this.workspaceRoot) {
+      console.error('\n=== TIMEPON CONFIGURATION ERROR ===');
+      console.error('TIMEPON_WORKSPACE environment variable not set!');
+      console.error('\nTimepon requires per-workspace configuration.');
+      console.error('\nQuick fix - Create .cursor/mcp.json in your workspace with:');
+      console.error('{');
+      console.error('  "mcpServers": {');
+      console.error('    "timepon": {');
+      console.error('      "command": "node",');
+      console.error('      "args": ["C:\\\\Users\\\\Fab2\\\\Desktop\\\\AI\\\\_timecop\\\\mcp-server\\\\index.js"],');
+      console.error('      "env": { "TIMEPON_WORKSPACE": "${workspaceFolder}" }');
+      console.error('    }');
+      console.error('  }');
+      console.error('}');
+      console.error('\nOr run the installer script - see README.md for details.\n');
+      process.exit(1);
+    }
+    
     this.yamlPath = path.join(this.workspaceRoot, '_timepon.yaml');
     this.metadata = { files: {} };
     this.watcher = null;

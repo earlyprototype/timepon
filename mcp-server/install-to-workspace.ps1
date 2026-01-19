@@ -41,7 +41,7 @@ $mcpConfig = @{
             command = "node"
             args = @($timeponServerPath)
             env = @{
-                TIMEPON_WORKSPACE = $WorkspacePath
+                TIMEPON_WORKSPACE = "`${workspaceFolder}"
             }
         }
     }
@@ -50,18 +50,23 @@ $mcpConfig = @{
 # If config exists, merge with existing
 if (Test-Path $mcpConfigPath) {
     Write-Host "Updating existing mcp.json..." -ForegroundColor Yellow
-    $existing = Get-Content $mcpConfigPath -Raw | ConvertFrom-Json
-    
-    # Add timepon to existing servers
-    if (-not $existing.mcpServers) {
-        $existing | Add-Member -MemberType NoteProperty -Name "mcpServers" -Value @{}
+    try {
+        $existing = Get-Content $mcpConfigPath -Raw | ConvertFrom-Json
+        
+        # Add timepon to existing servers
+        if (-not $existing.mcpServers) {
+            $existing | Add-Member -MemberType NoteProperty -Name "mcpServers" -Value @{}
+        }
+        $existing.mcpServers | Add-Member -MemberType NoteProperty -Name "timepon" -Value $mcpConfig.mcpServers.timepon -Force
+        
+        $existing | ConvertTo-Json -Depth 10 | Set-Content $mcpConfigPath -Encoding UTF8
+    } catch {
+        Write-Host "ERROR: Failed to parse existing mcp.json: $_" -ForegroundColor Red
+        exit 1
     }
-    $existing.mcpServers | Add-Member -MemberType NoteProperty -Name "timepon" -Value $mcpConfig.mcpServers.timepon -Force
-    
-    $existing | ConvertTo-Json -Depth 10 | Set-Content $mcpConfigPath
 } else {
     Write-Host "Creating new mcp.json..." -ForegroundColor Green
-    $mcpConfig | ConvertTo-Json -Depth 10 | Set-Content $mcpConfigPath
+    $mcpConfig | ConvertTo-Json -Depth 10 | Set-Content $mcpConfigPath -Encoding UTF8
 }
 
 Write-Host ""

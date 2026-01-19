@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "timepon": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\Fab2\\Desktop\\AI\\_timecop\\mcp-server\\index.js"
+      ],
+      "env": {
+        "TIMEPON_WORKSPACE": "${workspaceFolder}"
+      }
+    }
+  }
+}

@@ -16,7 +16,7 @@ Keep your LLM's favourite passtime of document creation clean and managable, eve
 
 ## Quick Start
 
-**Get running in 5 minutes:**
+**Get running in 2 minutes:**
 
 1. Install dependencies:
    ```powershell
@@ -24,38 +24,42 @@ Keep your LLM's favourite passtime of document creation clean and managable, eve
    npm install
    ```
 
-2. Configure Cursor (run the helper script):
+2. Run the installer in your workspace:
    ```powershell
-   powershell -ExecutionPolicy Bypass -File setup-config.ps1
+   cd C:\path\to\your\workspace
+   powershell -ExecutionPolicy Bypass -File C:\path\to\_timecop\mcp-server\install-to-workspace.ps1
    ```
 
 3. Restart Cursor
 
-4. Test it - ask your AI:
+4. Test it - check `_timepon.yaml` in your workspace or ask your AI:
    ```
    Show me all files using timepon
    ```
 
-That's it. See [`QUICK_START.md`](QUICK_START.md) for more details.
+That's it! Uses `${workspaceFolder}` for automatic workspace detection. See [`WORKSPACE_CONFIG.md`](WORKSPACE_CONFIG.md) for advanced configuration.
 
 ---
 
 ## Using in Multiple Workspaces
 
-**The Quick Start above only works for ONE workspace.** To use Timepon in other projects:
+**Timepon uses per-workspace configuration** - each project gets its own tracking.
 
-### Option 1: Per-Workspace Installation (Recommended)
+### Quick Setup (Automatic Workspace Detection)
 
-Run this in each workspace you want to track:
-
+**Option 1: Use the installer (recommended)**
 ```powershell
-cd path\to\your\other\project
+cd C:\path\to\your\workspace
 powershell -ExecutionPolicy Bypass -File C:\Users\Fab2\Desktop\AI\_timecop\mcp-server\install-to-workspace.ps1
 ```
 
-This creates `.cursor/mcp.json` in that workspace with Timepon configured specifically for it.
+**Option 2: Copy the template**
+1. Copy `mcp-server/mcp.json.template` to your workspace as `.cursor/mcp.json`
+2. Done! The `${workspaceFolder}` variable auto-detects your workspace path
 
-### Option 2: Manual Configuration
+Both methods use Cursor's built-in `${workspaceFolder}` variable for automatic workspace detection.
+
+### Manual Configuration (Alternative)
 
 1. Create `.cursor` folder in your workspace
 2. Create `.cursor/mcp.json` with:
@@ -66,14 +70,15 @@ This creates `.cursor/mcp.json` in that workspace with Timepon configured specif
          "command": "node",
          "args": ["C:\\Users\\Fab2\\Desktop\\AI\\_timecop\\mcp-server\\index.js"],
          "env": {
-           "TIMEPON_WORKSPACE": "C:\\path\\to\\your\\workspace"
+           "TIMEPON_WORKSPACE": "${workspaceFolder}"
          }
        }
      }
    }
    ```
-3. Replace the workspace path with your actual project path
-4. Restart Cursor
+3. Restart Cursor
+
+**Note:** The `${workspaceFolder}` variable automatically resolves to your workspace path - no manual editing needed!
 
 ---
 
