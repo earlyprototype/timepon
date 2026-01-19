@@ -2,7 +2,7 @@
 
 **AI-assisted development hygiene product that tracks file creation and metadata.**
 
-Keep your LLM's favourite passtime of document creation clean and managable, even during the heaviest vibe flow. Timepon automatically tracks new files, extracts metadata, and makes file history visible to both you and your AI so you can keep things clean, clear and tidy
+Keep your LLM's favourite passtime of document creation clean and managable, even during the heaviest vibe flow. Timepon automatically tracks new files, extracts metadata, and makes file history visible to both you and your AI so you can keep things clean, clear and tidy.
 
 ---
 
@@ -37,6 +37,43 @@ Keep your LLM's favourite passtime of document creation clean and managable, eve
    ```
 
 That's it. See [`QUICK_START.md`](QUICK_START.md) for more details.
+
+---
+
+## Using in Multiple Workspaces
+
+**The Quick Start above only works for ONE workspace.** To use Timepon in other projects:
+
+### Option 1: Per-Workspace Installation (Recommended)
+
+Run this in each workspace you want to track:
+
+```powershell
+cd path\to\your\other\project
+powershell -ExecutionPolicy Bypass -File C:\Users\Fab2\Desktop\AI\_timecop\mcp-server\install-to-workspace.ps1
+```
+
+This creates `.cursor/mcp.json` in that workspace with Timepon configured specifically for it.
+
+### Option 2: Manual Configuration
+
+1. Create `.cursor` folder in your workspace
+2. Create `.cursor/mcp.json` with:
+   ```json
+   {
+     "mcpServers": {
+       "timepon": {
+         "command": "node",
+         "args": ["C:\\Users\\Fab2\\Desktop\\AI\\_timecop\\mcp-server\\index.js"],
+         "env": {
+           "TIMEPON_WORKSPACE": "C:\\path\\to\\your\\workspace"
+         }
+       }
+     }
+   }
+   ```
+3. Replace the workspace path with your actual project path
+4. Restart Cursor
 
 ---
 

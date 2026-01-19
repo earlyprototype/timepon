@@ -39,8 +39,8 @@ class TimeponServer {
       }
     );
 
-    // Get workspace root from environment or default to parent directory
-    this.workspaceRoot = process.env.TIMEPON_WORKSPACE || path.resolve(__dirname, '..');
+    // Get workspace root from environment or auto-detect from current working directory
+    this.workspaceRoot = process.env.TIMEPON_WORKSPACE || process.cwd();
     this.yamlPath = path.join(this.workspaceRoot, '_timepon.yaml');
     this.metadata = { files: {} };
     this.watcher = null;
@@ -189,7 +189,11 @@ _timepon.yaml.backup.*
         }
         
         this.metadata = parsed;
-        console.error(`Loaded metadata for ${Object.keys(this.metadata.files).length} files`);
+        
+        // Clean up any files that match ignore patterns (e.g. .git files from old runs)
+        const cleanedCount = await this.cleanIgnoredFiles();
+        
+        console.error(`Loaded metadata for ${Object.keys(this.metadata.files).length} files${cleanedCount > 0 ? ` (removed ${cleanedCount} ignored files)` : ''}`);
       } else {
         this.metadata = { files: {} };
         console.error('No existing metadata found, starting fresh');
@@ -210,6 +214,55 @@ _timepon.yaml.backup.*
       
       this.metadata = { files: {} };
     }
+  }
+
+  /**
+   * Clean up files from metadata that match ignore patterns
+   */
+  async cleanIgnoredFiles() {
+    const ignorePatterns = await this.loadIgnorePatterns();
+    const filePaths = Object.keys(this.metadata.files);
+    let removedCount = 0;
+    
+    for (const relativePath of filePaths) {
+      let shouldRemove = false;
+      
+      // Remove parent directory references and invalid paths
+      if (relativePath.includes('..') || relativePath === '.' || relativePath === '') {
+        shouldRemove = true;
+      }
+      
+      // Check if it's a directory (shouldn't be tracked)
+      if (!shouldRemove) {
+        try {
+          const absolutePath = path.join(this.workspaceRoot, relativePath);
+          const stats = await fs.stat(absolutePath);
+          if (stats.isDirectory()) {
+            shouldRemove = true;
+          }
+        } catch (error) {
+          // File doesn't exist anymore - remove it
+          shouldRemove = true;
+        }
+      }
+      
+      // Check if this file should be ignored
+      if (!shouldRemove) {
+        shouldRemove = ignorePatterns.some(pattern => pattern.test(relativePath));
+      }
+      
+      if (shouldRemove) {
+        delete this.metadata.files[relativePath];
+        removedCount++;
+      }
+    }
+    
+    // Save cleaned metadata if we removed anything
+    if (removedCount > 0) {
+      await this.saveMetadata();
+    }
+    
+    return removedCount;
   }
 
   async saveMetadata() {
@@ -476,8 +529,13 @@ Ctrl+K Ctrl+0 = fold all | Ctrl+K Ctrl+J = unfold all
     );
 
     for (const [filePath, metadata] of sortedEntries) {
-      const relativePath = path.relative(this.workspaceRoot, filePath);
-      const parts = relativePath.split(path.sep);
+      // filePath is already relative to workspace root
+      const parts = filePath.split(path.sep);
+      
+      // Skip invalid paths
+      if (parts.includes('..') || parts.includes('.') || parts.length === 0) {
+        continue;
+      }
       
       let current = tree.files;
       
@@ -609,29 +667,46 @@ Ctrl+K Ctrl+0 = fold all | Ctrl+K Ctrl+J = unfold all
 
   async handleFileCreation(filePath) {
     try {
+      // Normalize the path to absolute first
+      const absolutePath = path.resolve(filePath);
+      
+      // Convert to relative path from workspace root for storage
+      const relativePath = path.relative(this.workspaceRoot, absolutePath);
+      
+      // Skip parent directory references and invalid paths
+      if (relativePath.includes('..') || relativePath === '.' || relativePath === '') {
+        return;
+      }
+      
       // Skip if already tracked
-      if (this.metadata.files[filePath]) {
+      if (this.metadata.files[relativePath]) {
         return;
       }
 
-      const stats = await fs.stat(filePath);
-      const content = await this.readFileContent(filePath, stats); // Pass stats
+      const stats = await fs.stat(absolutePath);
+      
+      // CRITICAL: Skip directories - only track actual files
+      if (stats.isDirectory()) {
+        return;
+      }
+      
+      const content = await this.readFileContent(absolutePath, stats); // Pass stats
       
       // Generate metadata
       const metadata = {
         created: stats.birthtime.toISOString(),
-        summary: this.generateSummary(content, filePath),
-        tags: this.generateTags(content, filePath),
+        summary: this.generateSummary(content, absolutePath),
+        tags: this.generateTags(content, absolutePath),
       };
 
-      this.metadata.files[filePath] = metadata;
+      this.metadata.files[relativePath] = metadata;
       
       // Only save immediately during runtime
       if (!this.isInitializing) {
         await this.saveMetadata();
       }
 
-      console.error(`Tracked new file: ${path.relative(this.workspaceRoot, filePath)}`);
+      console.error(`Tracked new file: ${relativePath}`);
     } catch (error) {
       console.error(`Error handling file creation for ${filePath}:`, error.message);
     }
