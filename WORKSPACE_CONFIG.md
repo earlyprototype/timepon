@@ -65,7 +65,7 @@ If your fckgit isn't working, create `.cursor/mcp.json` in each project:
       "args": ["-m", "mcp_server"],
       "cwd": "C:\\Users\\Fab2\\Desktop\\AI\\_tools\\_fckgit",
       "env": {
-        "GEMINI_API_KEY": "AIzaSyBm8Zqd75OWTr0LVP3RryxS3GWldiOCj-o",
+        "GEMINI_API_KEY": "AIzaSy************",
         "WORKSPACE_ROOT": "${workspaceFolder}"
       }
     }
